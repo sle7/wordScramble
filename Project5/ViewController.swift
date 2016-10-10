@@ -63,11 +63,9 @@ class ViewController: UITableViewController {
     func submit(answer: String) {
         let lowerAnswer = answer.lowercased()
         
-        let errorTitle: String
-        let errorMessage: String
-        
         // Check if answer is same as the question
         if checkSameWord(answer: lowerAnswer, word: title!.lowercased()) {
+            showErrorMessage(title: "Answer same as title", message: "Answer can't be same as title!")
             return
         }
         
@@ -81,22 +79,15 @@ class ViewController: UITableViewController {
                     tableView.insertRows(at: [indexPath], with: .automatic)
                     return
                 } else {
-                    errorTitle = "Word not recognized"
-                    errorMessage = "You can't just make them up, you know!"
+                    showErrorMessage(title: "Word not recognized", message: "Word not in dictionary or <= 3 characters")
                 }
             } else {
-                errorTitle = "Word used already"
-                errorMessage = "Be more original!"
+                showErrorMessage(title: "Word used already", message: "Be more original!")
             }
         } else {
-            errorTitle = "Word not possible"
-            errorMessage = "You can't spell that word from '\(title!.lowercased())'"
+            showErrorMessage(title: "Word not possible", message: "You can't spell that word from '\(title!.lowercased())")
         }
         
-        // Alert error message if answer does not pass all if statements
-        let ac = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
-        ac.addAction(UIAlertAction(title: "OK", style: .default))
-        present(ac, animated: true)
     }
     
     func isPossible(word: String) -> Bool {
@@ -117,14 +108,22 @@ class ViewController: UITableViewController {
     }
     
     func isReal(word: String) -> Bool {
+        // Add check for more than 3 characters
         if word.utf16.count <= 3 {
             return false
         }
+        // Check if word in dictionary
         let checker = UITextChecker()
         let range = NSMakeRange(0, word.utf16.count)
         let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
         
         return misspelledRange.location == NSNotFound
+    }
+    
+    func showErrorMessage(title: String, message: String) {
+        let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "OK", style: .default))
+        present(ac, animated: true)
     }
     
     func checkSameWord(answer: String, word: String) -> Bool {
